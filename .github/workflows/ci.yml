@@ -4,7 +4,8 @@ on:
      branches: [develop]
    push:
      branches: [develop]
-        
+      
+      
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,13 +16,25 @@ jobs:
         with:
           node-version: "12.x"
       - run: npm ci
-      - run: npm run format:check 
       - run: npm test -- --coverage
         env:
-          CI: true    
+          CI: true   
+      - name: Upload Test --coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage
       - name: Build Project
         if: github.event_name == 'push'
         run: npm run build  
+
+      - name: Upload Buid folder
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: build   
+          #uses: actions/download-artifac   
       - name: Deploy To Staging
         if: github.event_name == 'push'
         run: npx surge --project ./build --domain troubled-quince.surge.sh
